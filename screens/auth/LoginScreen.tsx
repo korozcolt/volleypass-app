@@ -1,20 +1,21 @@
+import { useNavigation } from '@react-navigation/native';
 import React, { useState } from 'react';
-import { View, ScrollView, Alert } from 'react-native';
+import { ScrollView, View } from 'react-native';
 import {
-  TextInput,
-  Button,
-  Card,
-  Title,
-  Paragraph,
-  Text,
-  Surface,
-  ActivityIndicator,
-  useTheme,
+    ActivityIndicator,
+    Button,
+    Card,
+    Paragraph,
+    Surface,
+    Text,
+    TextInput,
+    Title,
+    useTheme,
 } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { LogoLarge } from '../../components/ui/LogoVariants';
 import { useAuth } from '../../providers/AuthProvider';
-import { useNavigation } from '@react-navigation/native';
 
 interface LoginForm {
   email: string;
@@ -112,28 +113,9 @@ const LoginScreen: React.FC = () => {
         contentContainerStyle={{ flexGrow: 1, padding: 16 }}
         keyboardShouldPersistTaps="handled"
       >
-        {/* Header */}
+        {/* Header con Logo */}
         <View style={{ alignItems: 'center', marginTop: 32, marginBottom: 32 }}>
-          <Surface
-            style={{
-              width: 80,
-              height: 80,
-              borderRadius: 40,
-              justifyContent: 'center',
-              alignItems: 'center',
-              marginBottom: 16,
-              elevation: 4,
-            }}
-          >
-            <Icon
-              name="volleyball"
-              size={40}
-              color={theme.colors.primary}
-            />
-          </Surface>
-          <Title style={{ fontSize: 28, fontWeight: 'bold', marginBottom: 8 }}>
-            VolleyPass
-          </Title>
+          <LogoLarge style={{ marginBottom: 24 }} />
           <Paragraph style={{ textAlign: 'center', color: theme.colors.onSurfaceVariant }}>
             Inicia sesión para acceder a todas las funciones
           </Paragraph>

@@ -1,16 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import { View, Alert, StyleSheet, Dimensions } from 'react-native';
+import { Camera, CameraView } from 'expo-camera';
+import React, { useEffect, useState } from 'react';
+import { Alert, Dimensions, StyleSheet, View } from 'react-native';
 import {
-  Surface,
-  Text,
-  Button,
-  ActivityIndicator,
-  IconButton,
-  Card,
-  Chip,
+    ActivityIndicator,
+    Button,
+    Card,
+    Chip,
+    IconButton,
+    Surface,
+    Text,
 } from 'react-native-paper';
-import { Camera } from 'expo-camera';
-import { BarCodeScanner } from 'expo-barcode-scanner';
 
 interface QRScannerScreenProps {
   navigation: any;
@@ -350,9 +349,12 @@ const QRScannerScreen: React.FC<QRScannerScreenProps> = ({ navigation, route }) 
 
       {/* Cámara */}
       <View style={styles.cameraContainer}>
-        <BarCodeScanner
-          onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
+        <CameraView
+          onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
           style={styles.camera}
+          barcodeScannerSettings={{
+            barcodeTypes: ['qr'],
+          }}
         />
         
         {/* Overlay de escaneo */}

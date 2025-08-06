@@ -1,22 +1,23 @@
+import { NavigationProp, useNavigation } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
-import { ScrollView, RefreshControl, View } from 'react-native';
+import { RefreshControl, ScrollView, View } from 'react-native';
 import {
-  Card,
-  Title,
-  Paragraph,
-  Button,
-  Surface,
-  Text,
-  Chip,
-  ActivityIndicator,
-  useTheme,
+    ActivityIndicator,
+    Button,
+    Card,
+    Chip,
+    Paragraph,
+    Surface,
+    Text,
+    Title,
+    useTheme,
 } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { Logo } from '../../components/ui/LogoVariants';
 import { useAuth } from '../../providers/AuthProvider';
 import api from '../../services/api';
 import { Match, Tournament } from '../../types';
-import { useNavigation, NavigationProp } from '@react-navigation/native';
 
 type RootStackParamList = {
   Login: undefined;
@@ -125,31 +126,26 @@ const HomeScreen: React.FC = () => {
         }
         contentContainerStyle={{ padding: 16 }}
       >
-        {/* Saludo */}
+        {/* Header con Logo */}
         <Surface
           style={{
             padding: 20,
             marginBottom: 16,
             borderRadius: 12,
             elevation: 2,
+            alignItems: 'center',
           }}
         >
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Icon
-              name={isAuthenticated ? 'account-circle' : 'volleyball'}
-              size={40}
-              color={theme.colors.primary}
-            />
-            <View style={{ marginLeft: 12, flex: 1 }}>
-              <Title style={{ fontSize: 20, marginBottom: 4 }}>
-                {getGreeting()}, {getUserName()}
-              </Title>
-              <Paragraph style={{ color: theme.colors.onSurfaceVariant }}>
-                {isAuthenticated
-                  ? 'Bienvenido de vuelta a VolleyPass'
-                  : 'Bienvenido a VolleyPass'}
-              </Paragraph>
-            </View>
+          <Logo width={250} height={100} style={{ marginBottom: 16 }} />
+          <View style={{ alignItems: 'center' }}>
+            <Title style={{ fontSize: 20, marginBottom: 4, textAlign: 'center' }}>
+              {getGreeting()}, {getUserName()}
+            </Title>
+            <Paragraph style={{ color: theme.colors.onSurfaceVariant, textAlign: 'center' }}>
+              {isAuthenticated
+                ? 'Bienvenido de vuelta a VolleyPass'
+                : 'Bienvenido a VolleyPass'}
+            </Paragraph>
           </View>
         </Surface>
 

@@ -1,40 +1,40 @@
-import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import { useTheme } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useAuth } from '../../providers/AuthProvider';
+import { LogoSmall } from '../ui/LogoVariants';
 
 // Pantallas públicas
 import HomeScreen from '../../screens/public/HomeScreen';
-import TournamentsScreen from '../../screens/public/TournamentsScreen';
 import LiveMatchesScreen from '../../screens/public/LiveMatchesScreen';
-import StandingsScreen from '../../screens/public/StandingsScreen';
 import MatchDetailScreen from '../../screens/public/MatchDetailScreen';
+import StandingsScreen from '../../screens/public/StandingsScreen';
 import TournamentDetailScreen from '../../screens/public/TournamentDetailScreen';
+import TournamentsScreen from '../../screens/public/TournamentsScreen';
 
 // Pantallas de autenticación
 import LoginScreen from '../../screens/auth/LoginScreen';
 import RegisterScreen from '../../screens/auth/RegisterScreen';
 
 // Pantallas de usuario autenticado
-import ProfileScreen from '../../screens/user/ProfileScreen';
 import EditProfileScreen from '../../screens/user/EditProfileScreen';
 import NotificationsScreen from '../../screens/user/NotificationsScreen';
+import ProfileScreen from '../../screens/user/ProfileScreen';
 
 // Pantallas de jugador
-import PlayerStatsScreen from '../../screens/player/PlayerStatsScreen';
-import PlayerSanctionsScreen from '../../screens/player/PlayerSanctionsScreen';
 import PlayerPaymentsScreen from '../../screens/player/PlayerPaymentsScreen';
+import PlayerSanctionsScreen from '../../screens/player/PlayerSanctionsScreen';
+import PlayerStatsScreen from '../../screens/player/PlayerStatsScreen';
 
 // Pantallas de árbitro
-import RefereeMatchesScreen from '../../screens/referee/RefereeMatchesScreen';
 import MatchControlScreen from '../../screens/referee/MatchControlScreen';
 import QRScannerScreen from '../../screens/referee/QRScannerScreen';
+import RefereeMatchesScreen from '../../screens/referee/RefereeMatchesScreen';
 
 // Pantallas de entrenador/dirigente
-import TeamManagementScreen from '../../screens/coach/TeamManagementScreen';
 import PlayerManagementScreen from '../../screens/coach/PlayerManagementScreen';
+import TeamManagementScreen from '../../screens/coach/TeamManagementScreen';
 
 // Pantallas de liga
 import LeagueMatchesScreen from '../../screens/league/LeagueMatchesScreen';
@@ -82,6 +82,7 @@ const PublicTabNavigator = () => {
           backgroundColor: theme.colors.surface,
         },
         headerTintColor: theme.colors.onSurface,
+        headerTitle: (props) => <LogoSmall {...props} />,
       })}
     >
       <Tab.Screen 

@@ -1,8 +1,8 @@
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { User } from '../types';
+import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react';
 import authService, { AuthContextType } from '../services/auth';
 import notificationService from '../services/notifications';
 import webSocketService from '../services/websocket';
+import { User } from '../types';
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -185,6 +185,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     return authService.isLeague();
   };
 
+  const getToken = async (): Promise<string | null> => {
+    return authService.getToken();
+  };
+
   const contextValue: AuthContextType = {
     user,
     isAuthenticated,
@@ -200,6 +204,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     isReferee,
     isAdmin,
     isLeague,
+    getToken,
   };
 
   return (

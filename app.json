@@ -4,7 +4,7 @@
     "slug": "volleypass-app",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/logo-volley_pass_white_back.png",
     "scheme": "volleypassapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -13,31 +13,26 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "foregroundImage": "./assets/images/logo-volley_pass_white_back.png",
+        "backgroundColor": "#1976d2"
       },
       "edgeToEdgeEnabled": true
     },
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/logo-volley_pass_white_back.png"
     },
     "plugins": [
-      "expo-router",
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 200,
+          "image": "./assets/images/logo-volley_pass_white_back.png",
+          "imageWidth": 250,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
+          "backgroundColor": "#1976d2"
         }
-      ],
-      "expo-barcode-scanner"
-    ],
-    "experiments": {
-      "typedRoutes": true
-    }
+      ]
+    ]
   }
 }

@@ -1,7 +1,7 @@
-import React, { useEffect, useRef } from 'react';
-import { Platform, Alert } from 'react-native';
-import { Snackbar, Portal } from 'react-native-paper';
 import * as Notifications from 'expo-notifications';
+import React, { useEffect, useRef } from 'react';
+import { Platform } from 'react-native';
+import { Portal, Snackbar } from 'react-native-paper';
 import { useAuth } from '../../providers/AuthProvider';
 import { NotificationService } from '../../services/notifications';
 import { PushNotification } from '../../types';
@@ -46,6 +46,12 @@ const NotificationHandler: React.FC<NotificationHandlerProps> = ({ children }) =
 
   const initializeNotifications = async () => {
     try {
+      // Verificar si estamos en Expo Go (no soporta notificaciones push)
+      if (__DEV__ && Platform.OS === 'android') {
+        console.warn('Push notifications not supported in Expo Go on Android');
+        return;
+      }
+
       if (!notificationService.current) return;
 
       // Solicitar permisos
@@ -73,27 +79,35 @@ const NotificationHandler: React.FC<NotificationHandlerProps> = ({ children }) =
   };
 
   const setupNotificationListeners = () => {
-    // Listener para notificaciones recibidas mientras la app está en primer plano
-    notificationListener.current = Notifications.addNotificationReceivedListener(
-      (notification) => {
-        handleNotificationReceived(notification);
-      }
-    );
+    try {
+      // Listener para notificaciones recibidas mientras la app está en primer plano
+      notificationListener.current = Notifications.addNotificationReceivedListener(
+        (notification) => {
+          handleNotificationReceived(notification);
+        }
+      );
 
-    // Listener para cuando el usuario toca una notificación
-    responseListener.current = Notifications.addNotificationResponseReceivedListener(
-      (response) => {
-        handleNotificationResponse(response);
-      }
-    );
+      // Listener para cuando el usuario toca una notificación
+      responseListener.current = Notifications.addNotificationResponseReceivedListener(
+        (response) => {
+          handleNotificationResponse(response);
+        }
+      );
+    } catch (error) {
+      console.warn('Could not setup notification listeners:', error);
+    }
   };
 
   const cleanupListeners = () => {
-    if (notificationListener.current) {
-      Notifications.removeNotificationSubscription(notificationListener.current);
-    }
-    if (responseListener.current) {
-      Notifications.removeNotificationSubscription(responseListener.current);
+    try {
+      if (notificationListener.current) {
+        Notifications.removeNotificationSubscription(notificationListener.current);
+      }
+      if (responseListener.current) {
+        Notifications.removeNotificationSubscription(responseListener.current);
+      }
+    } catch (error) {
+      console.warn('Could not cleanup notification listeners:', error);
     }
   };
 

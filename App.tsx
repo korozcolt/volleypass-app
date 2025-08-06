@@ -1,16 +1,16 @@
-import React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
-import 'react-native-reanimated';
-import { PaperProvider, MD3LightTheme, MD3DarkTheme } from 'react-native-paper';
-import { useColorScheme } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
+import React, { useEffect } from 'react';
+import { useColorScheme } from 'react-native';
+import { MD3DarkTheme, MD3LightTheme, PaperProvider } from 'react-native-paper';
+import 'react-native-reanimated';
 
 // Componentes y proveedores
-import { AuthProvider } from '../providers/AuthProvider';
-import AppNavigator from '../components/navigation/AppNavigator';
-import NotificationHandler from '../components/notifications/NotificationHandler';
+import AppNavigator from './components/navigation/AppNavigator';
+import CustomSplashScreen from './components/ui/SplashScreen';
+import { AuthProvider } from './providers/AuthProvider';
 
 // Configuración del tema personalizado
 const lightTheme = {
@@ -51,7 +51,7 @@ SplashScreen.preventAutoHideAsync();
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
+    SpaceMono: require('./assets/fonts/SpaceMono-Regular.ttf'),
   });
 
   useEffect(() => {
@@ -60,8 +60,18 @@ export default function RootLayout() {
     }
   }, [loaded]);
 
+  // Inicializar WebFavicon
+  React.useEffect(() => {
+    // Solo en web
+    if (typeof window !== 'undefined') {
+      import('./components/ui/WebFavicon').then(({ default: WebFavicon }) => {
+        // WebFavicon se ejecuta automáticamente
+      });
+    }
+  }, [colorScheme]);
+
   if (!loaded) {
-    return null;
+    return <CustomSplashScreen />;
   }
 
   const theme = colorScheme === 'dark' ? darkTheme : lightTheme;
@@ -69,10 +79,12 @@ export default function RootLayout() {
   return (
     <PaperProvider theme={theme}>
       <AuthProvider>
-        <NotificationHandler>
+        <ConditionalNotificationHandler>
           <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
-          <AppNavigator />
-        </NotificationHandler>
+          <NavigationContainer>
+            <AppNavigator />
+          </NavigationContainer>
+        </ConditionalNotificationHandler>
       </AuthProvider>
     </PaperProvider>
   );

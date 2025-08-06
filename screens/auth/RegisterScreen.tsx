@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
-import { View, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, View } from 'react-native';
 import {
-  Surface,
-  Text,
-  TextInput,
-  Button,
-  HelperText,
-  Divider,
-  Chip,
+    Button,
+    Chip,
+    Divider,
+    HelperText,
+    Surface,
+    Text,
+    TextInput,
 } from 'react-native-paper';
+import { LogoMedium } from '../../components/ui/LogoVariants';
 import { useAuth } from '../../providers/AuthProvider';
 
 interface RegisterScreenProps {
@@ -164,10 +165,8 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) => {
       >
         <Surface style={{ padding: 24, borderRadius: 12, elevation: 4 }}>
           <View style={{ alignItems: 'center', marginBottom: 32 }}>
-            <Text variant="headlineMedium" style={{ fontWeight: 'bold', color: '#1976d2' }}>
-              VolleyPass
-            </Text>
-            <Text variant="titleMedium" style={{ marginTop: 8, color: '#666' }}>
+            <LogoMedium style={{ marginBottom: 16 }} />
+            <Text variant="titleMedium" style={{ color: '#666' }}>
               Crear nueva cuenta
             </Text>
           </View>

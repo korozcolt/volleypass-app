@@ -1,21 +1,26 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 import { SchedulableTriggerInputTypes } from 'expo-notifications';
-import * as Device from 'expo-device';
 import { Platform } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { PushNotification } from '../types';
-import authService from './auth';
 
-// Configurar el comportamiento de las notificaciones
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: true,
-    shouldShowBanner: true,
-    shouldShowList: true,
-  }),
-});
+// Configurar el comportamiento de las notificaciones solo si no estamos en Expo Go
+if (!__DEV__ || Platform.OS !== 'android') {
+  try {
+    Notifications.setNotificationHandler({
+      handleNotification: async () => ({
+        shouldShowAlert: true,
+        shouldPlaySound: true,
+        shouldSetBadge: true,
+        shouldShowBanner: true,
+        shouldShowList: true,
+      }),
+    });
+  } catch (error) {
+    console.warn('Notifications not available in Expo Go:', error);
+  }
+}
 
 export interface NotificationHandlers {
   onNotificationReceived?: (notification: Notifications.Notification) => void;
@@ -46,6 +51,12 @@ class NotificationService {
     try {
       this.handlers = handlers;
 
+      // Verificar si estamos en Expo Go (no soporta notificaciones push)
+      if (__DEV__ && Platform.OS === 'android') {
+        console.warn('Push notifications not supported in Expo Go on Android');
+        return null;
+      }
+
       // Verificar si es un dispositivo físico
       if (!Device.isDevice) {
         console.warn('Push notifications only work on physical devices');
@@ -66,13 +77,18 @@ class NotificationService {
         return null;
       }
 
-      // Obtener el token de Expo Push
-      const token = await Notifications.getExpoPushTokenAsync({
-        projectId: 'your-expo-project-id', // Reemplazar con el ID real del proyecto
-      });
+      // Obtener el token de Expo Push (solo si no estamos en Expo Go)
+      try {
+        const token = await Notifications.getExpoPushTokenAsync({
+          projectId: 'your-expo-project-id', // Reemplazar con el ID real del proyecto
+        });
 
-      this.expoPushToken = token.data;
-      console.log('Expo Push Token:', this.expoPushToken);
+        this.expoPushToken = token.data;
+        console.log('Expo Push Token:', this.expoPushToken);
+      } catch (tokenError) {
+        console.warn('Could not get push token, likely running in Expo Go:', tokenError);
+        return null;
+      }
 
       // Configurar canal de notificaciones para Android
       if (Platform.OS === 'android') {
