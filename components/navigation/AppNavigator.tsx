@@ -1,17 +1,20 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useAuth } from '../../providers/AuthProvider';
 import { LogoSmall } from '../ui/LogoVariants';
 
-// Pantallas públicas
+// Importar pantallas públicas
 import HomeScreen from '../../screens/public/HomeScreen';
 import LiveMatchesScreen from '../../screens/public/LiveMatchesScreen';
 import MatchDetailScreen from '../../screens/public/MatchDetailScreen';
 import StandingsScreen from '../../screens/public/StandingsScreen';
 import TournamentDetailScreen from '../../screens/public/TournamentDetailScreen';
 import TournamentsScreen from '../../screens/public/TournamentsScreen';
+import WelcomeScreen from '../../screens/public/WelcomeScreen';
 
 // Pantallas de autenticación
 import LoginScreen from '../../screens/auth/LoginScreen';
@@ -82,7 +85,7 @@ const PublicTabNavigator = () => {
           backgroundColor: theme.colors.surface,
         },
         headerTintColor: theme.colors.onSurface,
-        headerTitle: (props) => <LogoSmall {...props} />,
+        headerTitle: () => <LogoSmall />,
       })}
     >
       <Tab.Screen 
@@ -403,14 +406,44 @@ const LeagueTabNavigator = () => {
 
 // Navegación principal de la aplicación
 const AppNavigator = () => {
-  const { isAuthenticated, isLoading, user } = useAuth();
   const theme = useTheme();
+  const { user, isAuthenticated, isLoading } = useAuth();
+  
+  // Estado local para manejar la carga inicial
+  const [localLoading, setLocalLoading] = useState(true);
+  const [localIsAuthenticated, setLocalIsAuthenticated] = useState(false);
 
-  if (isLoading) {
-    // Aquí podrías mostrar una pantalla de carga
-    return null;
+  useEffect(() => {
+    // Simular un tiempo de carga y luego usar el estado real de autenticación
+    const timer = setTimeout(() => {
+      setLocalIsAuthenticated(isAuthenticated);
+      setLocalLoading(false);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [isAuthenticated]);
+
+  // Mostrar pantalla de carga
+  if (localLoading || isLoading) {
+    return (
+      <View style={{
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: theme.colors.background
+      }}>
+        <LogoSmall width={120} height={120} style={{ marginBottom: 20 }} />
+        <Text style={{
+          fontSize: 18,
+          color: theme.colors.onBackground,
+          marginTop: 16
+        }}>
+          Cargando VolleyPass...
+        </Text>
+      </View>
+    );
   }
-
+  
   // Determinar qué navegador de pestañas usar basado en el tipo de usuario
   const getTabNavigator = () => {
     if (!isAuthenticated) {
@@ -443,77 +476,103 @@ const AppNavigator = () => {
         headerTintColor: theme.colors.onSurface,
       }}
     >
-        {!isAuthenticated ? (
-          // Pantallas de autenticación
-          <>
-            <Stack.Screen 
-              name="Main" 
-              component={TabNavigator} 
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen 
-              name="Login" 
-              component={LoginScreen} 
-              options={{ title: 'Iniciar Sesión' }}
-            />
-            <Stack.Screen 
-              name="Register" 
-              component={RegisterScreen} 
-              options={{ title: 'Registrarse' }}
-            />
-          </>
-        ) : (
-          // Pantallas autenticadas
-          <>
-            <Stack.Screen 
-              name="Main" 
-              component={TabNavigator} 
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen 
-              name="EditProfile" 
-              component={EditProfileScreen} 
-              options={{ title: 'Editar Perfil' }}
-            />
-            <Stack.Screen 
-              name="Notifications" 
-              component={NotificationsScreen} 
-              options={{ title: 'Notificaciones' }}
-            />
-            <Stack.Screen 
-              name="PlayerSanctions" 
-              component={PlayerSanctionsScreen} 
-              options={{ title: 'Mis Sanciones' }}
-            />
-            <Stack.Screen 
-              name="PlayerPayments" 
-              component={PlayerPaymentsScreen} 
-              options={{ title: 'Mis Pagos' }}
-            />
-            <Stack.Screen 
-              name="MatchControl" 
-              component={MatchControlScreen} 
-              options={{ title: 'Control de Partido' }}
-            />
-            <Stack.Screen 
-              name="PlayerManagement" 
-              component={PlayerManagementScreen} 
-              options={{ title: 'Gestión de Jugadores' }}
-            />
-          </>
-        )}
+      {/* Pantalla de bienvenida como pantalla principal */}
+      <Stack.Screen 
+        name="Welcome" 
+        component={WelcomeScreen} 
+        options={{ headerShown: false }}
+      />
+      
+      {/* Pantallas públicas */}
+      <Stack.Screen 
+        name="Home" 
+        component={HomeScreen} 
+        options={{ title: 'Inicio' }}
+      />
+      <Stack.Screen 
+        name="Tournaments" 
+        component={TournamentsScreen} 
+        options={{ title: 'Torneos' }}
+      />
+      <Stack.Screen 
+        name="LiveMatches" 
+        component={LiveMatchesScreen} 
+        options={{ title: 'Partidos en Vivo' }}
+      />
+      <Stack.Screen 
+        name="Standings" 
+        component={StandingsScreen} 
+        options={{ title: 'Posiciones' }}
+      />
+      
+      {/* Pantallas de autenticación */}
+      <Stack.Screen 
+        name="Login" 
+        component={LoginScreen} 
+        options={{ title: 'Iniciar Sesión' }}
+      />
+      <Stack.Screen 
+        name="Register" 
+        component={RegisterScreen} 
+        options={{ title: 'Registrarse' }}
+      />
+      
+      {/* Navegación por pestañas para usuarios autenticados */}
+      {isAuthenticated && (
+        <Stack.Screen 
+          name="Main" 
+          component={TabNavigator} 
+          options={{ headerShown: false }}
+        />
+      )}
+      
+      {/* Pantallas autenticadas */}
+      {isAuthenticated && (
+        <>
+          <Stack.Screen 
+            name="EditProfile" 
+            component={EditProfileScreen} 
+            options={{ title: 'Editar Perfil' }}
+          />
+          <Stack.Screen 
+            name="Notifications" 
+            component={NotificationsScreen} 
+            options={{ title: 'Notificaciones' }}
+          />
+          <Stack.Screen 
+            name="PlayerSanctions" 
+            component={PlayerSanctionsScreen} 
+            options={{ title: 'Mis Sanciones' }}
+          />
+          <Stack.Screen 
+            name="PlayerPayments" 
+            component={PlayerPaymentsScreen} 
+            options={{ title: 'Mis Pagos' }}
+          />
+          <Stack.Screen 
+            name="MatchControl" 
+            component={MatchControlScreen} 
+            options={{ title: 'Control de Partido' }}
+          />
+          <Stack.Screen 
+            name="PlayerManagement" 
+            component={PlayerManagementScreen} 
+            options={{ title: 'Gestión de Jugadores' }}
+          />
+        </>
+      )}
         
-        {/* Pantallas comunes */}
-        <Stack.Screen 
-          name="MatchDetail" 
-          component={MatchDetailScreen} 
-          options={{ title: 'Detalle del Partido' }}
-        />
-        <Stack.Screen 
-          name="TournamentDetail" 
-          component={TournamentDetailScreen} 
-          options={{ title: 'Detalle del Torneo' }}
-        />
+      {/* Pantallas de detalle comunes */}
+      <Stack.Screen 
+        name="MatchDetail" 
+        component={MatchDetailScreen as any} 
+        options={{ title: 'Detalle del Partido' }}
+      />
+      <Stack.Screen 
+        name="TournamentDetail" 
+        component={TournamentDetailScreen as any} 
+        options={{ title: 'Detalle del Torneo' }}
+      />
     </Stack.Navigator>
   );
 };

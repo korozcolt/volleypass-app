@@ -20,7 +20,6 @@
     },
     "web": {
       "bundler": "metro",
-      "output": "static",
       "favicon": "./assets/images/logo-volley_pass_white_back.png"
     },
     "plugins": [
@@ -33,6 +32,14 @@
           "backgroundColor": "#1976d2"
         }
       ]
-    ]
+    ],
+    "extra": {
+      "API_BASE_URL": "https://volleypass-new.test/api",
+      "PUSHER_APP_KEY": "4a23367f593455b21847",
+      "PUSHER_CLUSTER": "us2",
+      "PUSHER_FORCE_TLS": "true",
+      "PUSHER_AUTH_ENDPOINT": "https://volleypass-new.test/api/broadcasting/auth",
+      "ENVIRONMENT": "development"
+    }
   }
 }

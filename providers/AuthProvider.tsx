@@ -27,7 +27,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // Inicializar el servicio de autenticación
     const initializeAuth = async () => {
       try {
+        console.log('AuthProvider: Initializing auth service...');
         await authService.initialize();
+        console.log('AuthProvider: Auth service initialized');
       } catch (error) {
         console.error('Error initializing auth service:', error);
       }
@@ -37,6 +39,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     // Suscribirse a cambios de autenticación
     const unsubscribe = authService.subscribe((userData, authenticated) => {
+      console.log('AuthProvider: Auth state changed:', { userData: userData?.email, authenticated, isLoading: authService.getIsLoading() });
       setUser(userData);
       setIsAuthenticated(authenticated);
       setIsLoading(authService.getIsLoading());
@@ -77,12 +80,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         // Aquí podrías enviar el token al backend para asociarlo con el usuario
       }
 
-      // Inicializar WebSocket
-      await webSocketService.initialize({
-        key: 'your-pusher-key', // Reemplazar con la clave real
-        cluster: 'your-pusher-cluster', // Reemplazar con el cluster real
-        forceTLS: true,
-      });
+      // Inicializar WebSocket con configuración desde variables de entorno
+      await webSocketService.initialize();
 
       // Suscribirse al canal del usuario para notificaciones personales
       webSocketService.subscribeToUserChannel(userData.id, {

@@ -1,6 +1,5 @@
 import React from 'react';
 import { Image, ImageStyle, StyleProp, useColorScheme } from 'react-native';
-import { useTheme } from 'react-native-paper';
 
 interface LogoProps {
   style?: StyleProp<ImageStyle>;
@@ -15,7 +14,6 @@ const Logo: React.FC<LogoProps> = ({
   height = 80, 
   resizeMode = 'contain' 
 }) => {
-  const theme = useTheme();
   const colorScheme = useColorScheme();
   
   // Determinar qué logo usar basado en el tema

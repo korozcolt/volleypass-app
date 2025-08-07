@@ -61,24 +61,39 @@ export class AuthService {
 
   // Inicializar el servicio de autenticación
   async initialize(): Promise<void> {
+    console.log('AuthService: Starting initialization, setting isLoading to true');
     this.isLoading = true;
     this.notifyListeners();
 
     try {
+      console.log('AuthService: Checking for stored auth token');
       const token = await AsyncStorage.getItem('auth_token');
       if (token) {
-        const isValid = await api.verifyToken();
-        if (isValid) {
-          const userData = await api.getUserProfile();
-          this.setUser(userData);
-        } else {
+        console.log('AuthService: Token found, verifying...');
+        // Agregar timeout para evitar que se quede colgado
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Connection timeout')), 10000)
+        );
+        
+        try {
+          await Promise.race([api.verifyToken(), timeoutPromise]);
+          console.log('AuthService: Token verified, getting user profile...');
+          const userData = await Promise.race([api.getUserProfile(), timeoutPromise]);
+          console.log('AuthService: User profile retrieved, setting user');
+           this.setUser(userData as User);
+        } catch (verifyError) {
+          console.warn('Token verification failed or timed out:', verifyError);
           await this.clearAuth();
         }
+      } else {
+        // No hay token, usuario no autenticado
+        console.log('AuthService: No auth token found, user not authenticated');
       }
     } catch (error) {
-      console.error('Error initializing auth:', error);
+      console.error('AuthService: Error initializing auth:', error);
       await this.clearAuth();
     } finally {
+      console.log('AuthService: Initialization complete, setting isLoading to false');
       this.isLoading = false;
       this.notifyListeners();
     }

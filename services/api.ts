@@ -17,9 +17,10 @@ import {
 } from '../types';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { CONFIG } from '../config/env';
 
 class VolleyPassAPI {
-  private baseURL = 'https://volleypass-new.test/api';
+  private baseURL = CONFIG.API.BASE_URL;
   private token: string | null = null;
 
   constructor() {

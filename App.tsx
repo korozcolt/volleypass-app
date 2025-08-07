@@ -9,6 +9,7 @@ import 'react-native-reanimated';
 
 // Componentes y proveedores
 import AppNavigator from './components/navigation/AppNavigator';
+import ConditionalNotificationHandler from './components/notifications/ConditionalNotificationHandler';
 import CustomSplashScreen from './components/ui/SplashScreen';
 import { AuthProvider } from './providers/AuthProvider';
 
@@ -50,15 +51,23 @@ SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
-  const [loaded] = useFonts({
+  const [loaded, error] = useFonts({
     SpaceMono: require('./assets/fonts/SpaceMono-Regular.ttf'),
   });
 
   useEffect(() => {
-    if (loaded) {
+    // Ocultar splash screen después de un tiempo máximo o cuando las fuentes se carguen
+    const timer = setTimeout(() => {
+      SplashScreen.hideAsync();
+    }, 3000); // Máximo 3 segundos
+
+    if (loaded || error) {
+      clearTimeout(timer);
       SplashScreen.hideAsync();
     }
-  }, [loaded]);
+
+    return () => clearTimeout(timer);
+  }, [loaded, error]);
 
   // Inicializar WebFavicon
   React.useEffect(() => {
@@ -70,9 +79,10 @@ export default function RootLayout() {
     }
   }, [colorScheme]);
 
-  if (!loaded) {
-    return <CustomSplashScreen />;
-  }
+  // No bloquear la aplicación por las fuentes
+  // if (!loaded && !error) {
+  //   return <CustomSplashScreen />;
+  // }
 
   const theme = colorScheme === 'dark' ? darkTheme : lightTheme;
 

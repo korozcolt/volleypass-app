@@ -2,6 +2,7 @@ import Pusher from 'pusher-js';
 import Echo from 'laravel-echo';
 import { LiveMatchUpdate, Match } from '../types';
 import authService from './auth';
+import { CONFIG } from '../config/env';
 
 export interface WebSocketEventHandlers {
   onMatchScoreUpdated?: (data: any) => void;
@@ -53,9 +54,9 @@ class WebSocketService {
   }
 
   // Inicializar la conexión WebSocket
-  async initialize(config: {
-    key: string;
-    cluster: string;
+  async initialize(config?: {
+    key?: string;
+    cluster?: string;
     forceTLS?: boolean;
     authEndpoint?: string;
   }): Promise<void> {
@@ -63,11 +64,19 @@ class WebSocketService {
       // Get the auth token
       const token = await authService.getToken();
       
+      // Usar configuración por defecto o la proporcionada
+      const pusherConfig = {
+        key: config?.key || CONFIG.PUSHER.APP_KEY,
+        cluster: config?.cluster || CONFIG.PUSHER.CLUSTER,
+        forceTLS: config?.forceTLS ?? CONFIG.PUSHER.FORCE_TLS,
+        authEndpoint: config?.authEndpoint || CONFIG.PUSHER.AUTH_ENDPOINT,
+      };
+
       // Configurar Pusher
-      this.pusher = new Pusher(config.key, {
-        cluster: config.cluster,
-        forceTLS: config.forceTLS ?? true,
-        authEndpoint: config.authEndpoint || 'http://volleypass-new.test/api/broadcasting/auth',
+      this.pusher = new Pusher(pusherConfig.key, {
+        cluster: pusherConfig.cluster,
+        forceTLS: pusherConfig.forceTLS,
+        authEndpoint: pusherConfig.authEndpoint,
         auth: {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -79,10 +88,10 @@ class WebSocketService {
       // Configurar Laravel Echo
       this.echo = new Echo({
         broadcaster: 'pusher',
-        key: config.key,
-        cluster: config.cluster,
-        forceTLS: config.forceTLS ?? true,
-        authEndpoint: config.authEndpoint || 'http://volleypass-new.test/api/broadcasting/auth',
+        key: pusherConfig.key,
+        cluster: pusherConfig.cluster,
+        forceTLS: pusherConfig.forceTLS,
+        authEndpoint: pusherConfig.authEndpoint,
         auth: {
           headers: {
             Authorization: `Bearer ${token}`,
