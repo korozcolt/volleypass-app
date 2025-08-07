@@ -23,7 +23,7 @@ const getEnvVar = (name: string, defaultValue?: string): string => {
 
 // Configuración de la API
 export const API_CONFIG = {
-  BASE_URL: getEnvVar('API_BASE_URL', 'https://volleypass-new.test/api'),
+  BASE_URL: getEnvVar('API_BASE_URL', 'http://localhost:8000/api/v1'),
 } as const;
 
 // Configuración de Pusher

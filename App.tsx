@@ -9,7 +9,7 @@ import 'react-native-reanimated';
 
 // Componentes y proveedores
 import AppNavigator from './components/navigation/AppNavigator';
-import ConditionalNotificationHandler from './components/notifications/ConditionalNotificationHandler';
+// import ConditionalNotificationHandler from './components/notifications/ConditionalNotificationHandler';
 import CustomSplashScreen from './components/ui/SplashScreen';
 import { AuthProvider } from './providers/AuthProvider';
 
@@ -89,12 +89,12 @@ export default function RootLayout() {
   return (
     <PaperProvider theme={theme}>
       <AuthProvider>
-        <ConditionalNotificationHandler>
+        {/* <ConditionalNotificationHandler> */}
           <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
           <NavigationContainer>
             <AppNavigator />
           </NavigationContainer>
-        </ConditionalNotificationHandler>
+        {/* </ConditionalNotificationHandler> */}
       </AuthProvider>
     </PaperProvider>
   );

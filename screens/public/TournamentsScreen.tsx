@@ -45,24 +45,17 @@ const TournamentsScreen: React.FC = () => {
   const loadTournaments = async () => {
     try {
       setError(null);
-      const filters: TournamentFilters = {
-        per_page: 50,
-        sort_by: 'start_date'
-      };
+      const filters: TournamentFilters = {};
       
       const response = await api.getTournaments(filters);
       
-      if (response.success) {
-        setTournaments(response.data.data);
-        
-        // Extraer categorías únicas
-        const uniqueCategories = Array.from(
-          new Set(response.data.data.flatMap(t => t.category ? [{id: t.category.id, name: t.category.name}] : []))
-        );
-        setCategories(uniqueCategories);
-      } else {
-        setError('Error al cargar los torneos');
-      }
+      setTournaments(response);
+      
+      // Extraer categorías únicas
+      const uniqueCategories = Array.from(
+        new Set(response.flatMap(t => t.categories ? t.categories.map(cat => ({id: cat.id, name: cat.name})) : []))
+      );
+      setCategories(uniqueCategories);
     } catch (error) {
       console.error('Error cargando torneos:', error);
       setError('Error de conexión. Verifica tu internet.');
@@ -84,7 +77,7 @@ const TournamentsScreen: React.FC = () => {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(tournament => 
         tournament.name.toLowerCase().includes(query) ||
-        tournament.category.name.toLowerCase().includes(query) ||
+        tournament.categories.some(cat => cat.name.toLowerCase().includes(query)) ||
         tournament.league.name.toLowerCase().includes(query)
       );
     }
@@ -141,7 +134,7 @@ const TournamentsScreen: React.FC = () => {
     <Card
       key={tournament.id}
       style={{ marginBottom: 12 }}
-      onPress={() => navigation.navigate('TournamentDetail' as never, { tournamentId: tournament.id } as never)}
+      onPress={() => navigation.navigate('TournamentDetail' as never, { tournamentId: tournament.id.toString() } as never)}
     >
       <Card.Content style={{ padding: 16 }}>
         {/* Header */}
@@ -151,7 +144,7 @@ const TournamentsScreen: React.FC = () => {
               {tournament.name}
             </Text>
             <Text style={{ color: theme.colors.onSurfaceVariant, fontSize: 12 }}>
-              {tournament.category.name} • {tournament.league.name}
+              {tournament.categories.map(cat => cat.name).join(', ')} • {tournament.league.name}
             </Text>
           </View>
           <Chip
@@ -203,7 +196,7 @@ const TournamentsScreen: React.FC = () => {
                 style={{ marginRight: 4 }}
               />
               <Text style={{ color: theme.colors.onSurfaceVariant, fontSize: 12 }}>
-                {tournament.teams?.length || 0} equipos
+                {tournament.teams_count || 0} equipos
               </Text>
             </View>
             
@@ -215,7 +208,7 @@ const TournamentsScreen: React.FC = () => {
                 style={{ marginRight: 4 }}
               />
               <Text style={{ color: theme.colors.onSurfaceVariant, fontSize: 12 }}>
-                {tournament.matches?.length || 0} partidos
+                {tournament.matches_count || 0} partidos
               </Text>
             </View>
           </View>

@@ -1,6 +1,6 @@
 import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react';
 import authService, { AuthContextType } from '../services/auth';
-import notificationService from '../services/notifications';
+// import notificationService from '../services/notifications';
 import webSocketService from '../services/websocket';
 import { User } from '../types';
 
@@ -62,23 +62,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const initializeUserServices = async (userData: User) => {
     try {
       // Inicializar notificaciones
-      const pushToken = await notificationService.initialize({
-        onNotificationReceived: (notification) => {
-          console.log('Notification received in AuthProvider:', notification);
-        },
-        onNotificationResponse: (response) => {
-          console.log('Notification response in AuthProvider:', response);
-          // Aquí puedes manejar la navegación basada en la notificación
-        },
-        onError: (error) => {
-          console.error('Notification error:', error);
-        },
-      });
+      // const pushToken = await notificationService.initialize({
+      //   onNotificationReceived: (notification) => {
+      //     console.log('Notification received in AuthProvider:', notification);
+      //   },
+      //   onNotificationResponse: (response) => {
+      //     console.log('Notification response in AuthProvider:', response);
+      //     // Aquí puedes manejar la navegación basada en la notificación
+      //   },
+      //   onError: (error) => {
+      //     console.error('Notification error:', error);
+      //   },
+      // });
 
-      if (pushToken) {
-        console.log('Push token obtained:', pushToken);
-        // Aquí podrías enviar el token al backend para asociarlo con el usuario
-      }
+      // if (pushToken) {
+      //   console.log('Push token obtained:', pushToken);
+      //   // Aquí podrías enviar el token al backend para asociarlo con el usuario
+      // }
 
       // Inicializar WebSocket con configuración desde variables de entorno
       await webSocketService.initialize();
@@ -88,27 +88,27 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         onNotificationReceived: (data) => {
           console.log('User notification received:', data);
           // Mostrar notificación local si la app está en primer plano
-          notificationService.scheduleLocalNotification(
-            data.title || 'Nueva notificación',
-            data.message || 'Tienes una nueva notificación',
-            { type: 'general', ...data }
-          );
+          // notificationService.scheduleLocalNotification(
+          //   data.title || 'Nueva notificación',
+          //   data.message || 'Tienes una nueva notificación',
+          //   { type: 'general', ...data }
+          // );
         },
         onSanctionUpdate: (data) => {
           console.log('Sanction update received:', data);
-          notificationService.scheduleLocalNotification(
-            'Actualización de Sanción',
-            data.message || 'Se ha actualizado una sanción',
-            { type: 'sanction', sanction_id: data.sanction_id }
-          );
+          // notificationService.scheduleLocalNotification(
+          //   'Actualización de Sanción',
+          //   data.message || 'Se ha actualizado una sanción',
+          //   { type: 'sanction', sanction_id: data.sanction_id }
+          // );
         },
         onPaymentUpdate: (data) => {
           console.log('Payment update received:', data);
-          notificationService.scheduleLocalNotification(
-            'Actualización de Pago',
-            data.message || 'Se ha actualizado un pago',
-            { type: 'payment', payment_id: data.payment_id }
-          );
+          // notificationService.scheduleLocalNotification(
+          //   'Actualización de Pago',
+          //   data.message || 'Se ha actualizado un pago',
+          //   { type: 'payment', payment_id: data.payment_id }
+          // );
         },
       });
 
@@ -121,7 +121,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const cleanupUserServices = () => {
     try {
       webSocketService.disconnect();
-      notificationService.cleanup();
+      // notificationService.cleanup();
     } catch (error) {
       console.error('Error cleaning up user services:', error);
     }

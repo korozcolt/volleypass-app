@@ -1,340 +1,152 @@
-import { NavigationProp, useNavigation } from '@react-navigation/native';
-import React, { useEffect, useState } from 'react';
-import { RefreshControl, ScrollView, View } from 'react-native';
-import {
-    ActivityIndicator,
-    Button,
-    Card,
-    Chip,
-    Paragraph,
-    Surface,
-    Text,
-    Title,
-    useTheme,
-} from 'react-native-paper';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { Logo } from '../../components/ui/LogoVariants';
-import { useAuth } from '../../providers/AuthProvider';
-import api from '../../services/api';
-import { Match, Tournament } from '../../types';
+import React from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { NavigationProp } from '@react-navigation/native';
+import { RootStackParamList } from '../../types/navigation';
 
-type RootStackParamList = {
-  Login: undefined;
-  MatchDetail: { matchId: number; title: string };
-  LiveMatches: undefined;
-  TournamentDetail: { tournamentId: number };
-  Tournaments: undefined;
-};
+type HomeScreenNavigationProp = NavigationProp<RootStackParamList>;
 
 const HomeScreen: React.FC = () => {
-  const theme = useTheme();
-  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const { isAuthenticated, user } = useAuth();
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-  const [liveMatches, setLiveMatches] = useState<Match[]>([]);
-  const [upcomingMatches, setUpcomingMatches] = useState<Match[]>([]);
-  const [activeTournaments, setActiveTournaments] = useState<Tournament[]>([]);
-  const [error, setError] = useState<string | null>(null);
-
-  
-
-  useEffect(() => {
-    loadHomeData();
-  }, []);
-
-  const loadHomeData = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      
-      // Cargar partidos en vivo
-        const liveResponse = await api.getLiveMatches();
-        setLiveMatches(liveResponse.slice(0, 3));
-
-      // Cargar próximos partidos
-        const upcomingResponse = await api.getMatches({
-          status: 'scheduled',
-          per_page: 3,
-        });
-        setUpcomingMatches(upcomingResponse.data.slice(0, 3));
-
-      // Cargar torneos activos
-        const tournamentsResponse = await api.getTournaments({});
-        setActiveTournaments(tournamentsResponse.slice(0, 3));
-    } catch (error) {
-      console.error('Error cargando datos del inicio:', error);
-      setError('Error al cargar los datos');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const onRefresh = async () => {
-    setRefreshing(true);
-    await loadHomeData();
-    setRefreshing(false);
-  };
-
-  const formatMatchTime = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleTimeString('es-ES', {
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
-
-  const formatMatchDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('es-ES', {
-      day: '2-digit',
-      month: '2-digit'
-    });
-  };
-
-  const getMatchDate = (match: Match) => {
-    return match.scheduled_at;
-  };
-
-  const getGreeting = () => {
-    const hour = new Date().getHours();
-    if (hour < 12) return 'Buenos días';
-    if (hour < 18) return 'Buenas tardes';
-    return 'Buenas noches';
-  };
-
-  const getUserName = () => {
-    if (!isAuthenticated || !user) return 'Invitado';
-    return user.first_name || user.name || 'Usuario';
-  };
-
-  if (loading) {
-    return (
-      <SafeAreaView style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" />
-        <Text style={{ marginTop: 16 }}>Cargando...</Text>
-      </SafeAreaView>
-    );
-  }
+  const navigation = useNavigation<HomeScreenNavigationProp>();
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.background }}>
-      <ScrollView
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-        contentContainerStyle={{ padding: 16 }}
-      >
-        {/* Header con Logo */}
-        <Surface
-          style={{
-            padding: 20,
-            marginBottom: 16,
-            borderRadius: 12,
-            elevation: 2,
-            alignItems: 'center',
-          }}
+    <ScrollView style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.title}>VolleyPass</Text>
+        <Text style={styles.subtitle}>Plataforma de Voleibol</Text>
+      </View>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Partidos en Vivo</Text>
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Equipo A vs Equipo B</Text>
+          <Text style={styles.cardSubtitle}>Set 2 - 15:12</Text>
+          <TouchableOpacity 
+            style={styles.button}
+            onPress={() => navigation.navigate('LiveMatches')}
+          >
+            <Text style={styles.buttonText}>Ver Detalles</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Próximos Partidos</Text>
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Equipo C vs Equipo D</Text>
+          <Text style={styles.cardSubtitle}>Hoy 18:00</Text>
+        </View>
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Equipo E vs Equipo F</Text>
+          <Text style={styles.cardSubtitle}>Mañana 16:30</Text>
+        </View>
+      </View>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Torneos Activos</Text>
+        <TouchableOpacity 
+          style={styles.card}
+          onPress={() => navigation.navigate('Tournaments')}
         >
-          <Logo width={250} height={100} style={{ marginBottom: 16 }} />
-          <View style={{ alignItems: 'center' }}>
-            <Title style={{ fontSize: 20, marginBottom: 4, textAlign: 'center' }}>
-              {getGreeting()}, {getUserName()}
-            </Title>
-            <Paragraph style={{ color: theme.colors.onSurfaceVariant, textAlign: 'center' }}>
-              {isAuthenticated
-                ? 'Bienvenido de vuelta a VolleyPass'
-                : 'Bienvenido a VolleyPass'}
-            </Paragraph>
-          </View>
-        </Surface>
+          <Text style={styles.cardTitle}>Liga Nacional 2024</Text>
+          <Text style={styles.cardSubtitle}>32 equipos participando</Text>
+        </TouchableOpacity>
+        <TouchableOpacity 
+          style={styles.card}
+          onPress={() => navigation.navigate('Tournaments')}
+        >
+          <Text style={styles.cardTitle}>Copa Regional</Text>
+          <Text style={styles.cardSubtitle}>16 equipos participando</Text>
+        </TouchableOpacity>
+      </View>
 
-        {/* Botón de login para usuarios no autenticados */}
-        {!isAuthenticated && (
-          <Card style={{ marginBottom: 16 }}>
-            <Card.Content style={{ alignItems: 'center', padding: 20 }}>
-              <Icon
-                name="login"
-                size={48}
-                color={theme.colors.primary}
-                style={{ marginBottom: 12 }}
-              />
-              <Title style={{ textAlign: 'center', marginBottom: 8 }}>
-                Inicia Sesión
-              </Title>
-              <Paragraph style={{ textAlign: 'center', marginBottom: 16 }}>
-                Accede a tu perfil, estadísticas y funciones exclusivas
-              </Paragraph>
-              <Button
-                mode="contained"
-                onPress={() => navigation.navigate('Login')}
-                style={{ minWidth: 120 }}
-              >
-                Iniciar Sesión
-              </Button>
-            </Card.Content>
-          </Card>
-        )}
-
-        {/* Partidos en vivo */}
-        {liveMatches.length > 0 && (
-          <View style={{ marginBottom: 16 }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
-              <Icon name="circle" size={12} color="#ff4444" style={{ marginRight: 8 }} />
-              <Title style={{ fontSize: 18 }}>En Vivo</Title>
-            </View>
-            {liveMatches.map((match) => (
-              <Card
-                key={match.id}
-                style={{ marginBottom: 8 }}
-                onPress={() => navigation.navigate('MatchDetail', {
-                  matchId: match.id,
-                  title: `${match.home_team.name} vs ${match.away_team.name}`,
-                })}
-              >
-                <Card.Content style={{ padding: 16 }}>
-                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <View style={{ flex: 1 }}>
-                      <Text style={{ fontWeight: 'bold', fontSize: 16 }}>
-                        {match.home_team.name} vs {match.away_team.name}
-                      </Text>
-                      <Text style={{ color: theme.colors.onSurfaceVariant, marginTop: 4 }}>
-                        {match.tournament.name}
-                      </Text>
-                    </View>
-                    <View style={{ alignItems: 'center' }}>
-                      <Chip
-                        mode="flat"
-                        style={{ backgroundColor: '#ff4444' }}
-                        textStyle={{ color: 'white', fontSize: 12 }}
-                      >
-                        EN VIVO
-                      </Chip>
-                      {(match.home_sets !== null && match.away_sets !== null) && (
-                        <Text style={{ marginTop: 4, fontWeight: 'bold' }}>
-                          {match.home_sets || 0} - {match.away_sets || 0}
-                        </Text>
-                      )}
-                    </View>
-                  </View>
-                </Card.Content>
-              </Card>
-            ))}
-            <Button
-              mode="outlined"
-              onPress={() => navigation.navigate('LiveMatches')}
-              style={{ marginTop: 8 }}
-            >
-              Ver todos los partidos en vivo
-            </Button>
-          </View>
-        )}
-
-        {/* Próximos partidos */}
-        {upcomingMatches.length > 0 && (
-          <View style={{ marginBottom: 16 }}>
-            <Title style={{ fontSize: 18, marginBottom: 12 }}>Próximos Partidos</Title>
-            {upcomingMatches.map((match) => (
-              <Card
-                key={match.id}
-                style={{ marginBottom: 8 }}
-                onPress={() => navigation.navigate('MatchDetail', {
-                  matchId: match.id,
-                  title: `${match.home_team.name} vs ${match.away_team.name}`,
-                })}
-              >
-                <Card.Content style={{ padding: 16 }}>
-                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <View style={{ flex: 1 }}>
-                      <Text style={{ fontWeight: 'bold', fontSize: 16 }}>
-                        {match.home_team.name} vs {match.away_team.name}
-                      </Text>
-                      <Text style={{ color: theme.colors.onSurfaceVariant, marginTop: 4 }}>
-                        {match.tournament.name}
-                      </Text>
-                    </View>
-                    <View style={{ alignItems: 'center' }}>
-                      <Text style={{ fontWeight: 'bold' }}>
-                        {formatMatchDate(getMatchDate(match))}
-                      </Text>
-                      <Text style={{ color: theme.colors.onSurfaceVariant }}>
-                        {formatMatchTime(getMatchDate(match))}
-                      </Text>
-                    </View>
-                  </View>
-                </Card.Content>
-              </Card>
-            ))}
-          </View>
-        )}
-
-        {/* Torneos activos */}
-        {activeTournaments.length > 0 && (
-          <View style={{ marginBottom: 16 }}>
-            <Title style={{ fontSize: 18, marginBottom: 12 }}>Torneos Activos</Title>
-            {activeTournaments.map((tournament) => (
-              <Card
-                key={tournament.id}
-                style={{ marginBottom: 8 }}
-                onPress={() => navigation.navigate('TournamentDetail', {
-                  tournamentId: tournament.id,
-                })}
-              >
-                <Card.Content style={{ padding: 16 }}>
-                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    <Icon
-                      name="trophy"
-                      size={24}
-                      color={theme.colors.primary}
-                      style={{ marginRight: 12 }}
-                    />
-                    <View style={{ flex: 1 }}>
-                      <Text style={{ fontWeight: 'bold', fontSize: 16 }}>
-                        {tournament.name}
-                      </Text>
-                      <Text style={{ color: theme.colors.onSurfaceVariant, marginTop: 4 }}>
-                        {tournament.categories?.[0]?.name || 'Sin categoría'} • {tournament.league.name}
-                      </Text>
-                    </View>
-                    <Chip mode="flat" style={{ backgroundColor: theme.colors.primaryContainer }}>
-                      Activo
-                    </Chip>
-                  </View>
-                </Card.Content>
-              </Card>
-            ))}
-            <Button
-              mode="outlined"
-              onPress={() => navigation.navigate('Tournaments')}
-              style={{ marginTop: 8 }}
-            >
-              Ver todos los torneos
-            </Button>
-          </View>
-        )}
-
-        {/* Mensaje cuando no hay datos */}
-        {liveMatches.length === 0 && upcomingMatches.length === 0 && activeTournaments.length === 0 && (
-          <Card>
-            <Card.Content style={{ alignItems: 'center', padding: 32 }}>
-              <Icon
-                name="volleyball"
-                size={64}
-                color={theme.colors.onSurfaceVariant}
-                style={{ marginBottom: 16 }}
-              />
-              <Title style={{ textAlign: 'center', marginBottom: 8 }}>
-                No hay actividad reciente
-              </Title>
-              <Paragraph style={{ textAlign: 'center' }}>
-                Explora los torneos y partidos disponibles
-              </Paragraph>
-            </Card.Content>
-          </Card>
-        )}
-      </ScrollView>
-    </SafeAreaView>
+      <View style={styles.section}>
+        <TouchableOpacity 
+          style={styles.primaryButton}
+          onPress={() => navigation.navigate('Standings')}
+        >
+          <Text style={styles.primaryButtonText}>Ver Clasificaciones</Text>
+        </TouchableOpacity>
+      </View>
+    </ScrollView>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#f5f5f5',
+  },
+  header: {
+    padding: 20,
+    backgroundColor: '#1976d2',
+    alignItems: 'center',
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: 'white',
+    marginBottom: 5,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#e3f2fd',
+  },
+  section: {
+    padding: 20,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#2c3e50',
+    marginBottom: 15,
+  },
+  card: {
+    backgroundColor: 'white',
+    padding: 15,
+    borderRadius: 8,
+    marginBottom: 10,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  cardTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#2c3e50',
+    marginBottom: 5,
+  },
+  cardSubtitle: {
+    fontSize: 14,
+    color: '#7f8c8d',
+    marginBottom: 10,
+  },
+  button: {
+    backgroundColor: '#3498db',
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: 'white',
+    fontWeight: '600',
+  },
+  primaryButton: {
+    backgroundColor: '#27ae60',
+    padding: 15,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  primaryButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+});
 
 export default HomeScreen;

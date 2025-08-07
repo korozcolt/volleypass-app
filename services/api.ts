@@ -59,6 +59,10 @@ class VolleyPassAPI {
   ): Promise<ApiResponse<T>> {
     const url = `${this.baseURL}${endpoint}`;
     
+    // Log de la URL completa que se está consultando
+    console.log(`🌐 API Request URL: ${url}`);
+    console.log(`📤 Request Method: ${options.method || 'GET'}`);
+    
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
@@ -73,17 +77,24 @@ class VolleyPassAPI {
       const response = await fetch(url, {
         ...options,
         headers,
+        mode: 'cors',
+        credentials: 'omit',
       });
 
       const data = await response.json();
+      
+      // Log de la respuesta
+      console.log(`📥 API Response Status: ${response.status}`);
+      console.log(`📥 API Response Data:`, JSON.stringify(data, null, 2));
 
       if (!response.ok) {
+        console.error(`❌ API Error Response:`, data);
         throw new Error(data.message || `HTTP ${response.status}: ${response.statusText}`);
       }
 
       return data;
     } catch (error) {
-      console.error('API Request Error:', error);
+      console.error(`❌ API Request Error for ${url}:`, error);
       throw error;
     }
   }
@@ -158,7 +169,7 @@ class VolleyPassAPI {
       }
     });
 
-    const endpoint = `/matches${params.toString() ? `?${params.toString()}` : ''}`;
+    const endpoint = `/matches/scheduled${params.toString() ? `?${params.toString()}` : ''}`;
     return this.paginatedRequest<Match>(endpoint);
   }
 
@@ -207,7 +218,7 @@ class VolleyPassAPI {
       }
     });
 
-    const endpoint = `/tournaments${params.toString() ? `?${params.toString()}` : ''}`;
+    const endpoint = `/public/tournaments${params.toString() ? `?${params.toString()}` : ''}`;
     const response = await this.request<Tournament[]>(endpoint);
     if (response.success && response.data) {
       return response.data;
@@ -216,7 +227,7 @@ class VolleyPassAPI {
   }
 
   async getTournamentStandings(tournamentId: number): Promise<Standing[]> {
-    const response = await this.request<Standing[]>(`/tournaments/${tournamentId}/standings`);
+    const response = await this.request<Standing[]>(`/public/tournaments/${tournamentId}/standings`);
     if (response.success && response.data) {
       return response.data;
     }
