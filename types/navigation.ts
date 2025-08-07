@@ -13,6 +13,9 @@ export type RootStackParamList = {
   PlayerManagement: undefined;
   MatchDetail: { matchId: number; title: string };
   TournamentDetail: { tournamentId: number };
+  Tournaments: undefined;
+  LiveMatches: undefined;
+  Standings: undefined;
 };
 
 export type TabParamList = {
